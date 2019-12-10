@@ -7,11 +7,11 @@ import java.lang.annotation.Target;
 
 /**
  * @author qinzhu
- * @since 2019/12/9
+ * @since 2019/12/10
  *
- * 调用方需要在调用接口上使用该注解
+ * 服务提供方，在提供类上标该注解
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface RpcCaller {
+public @interface RpcReply {
 }

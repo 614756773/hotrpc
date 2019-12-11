@@ -42,7 +42,7 @@ public class Client {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new CommonInitializer(new Clienthandler(queue)));
+                    .handler(new CommonInitializer(new ClientHandler(queue)));
             Channel channel = b.connect(host, port).sync().channel();
             this.channel = channel;
             this.channel.closeFuture().sync();// TODO 测试一下是否不需要关闭

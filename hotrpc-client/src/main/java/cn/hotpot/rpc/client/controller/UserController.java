@@ -1,8 +1,9 @@
 package cn.hotpot.rpc.client.controller;
 
-import cn.hotpot.rpc.client.entity.User;
-import cn.hotpot.rpc.client.service.UserService;
+import cn.hotpot.rpc.common.service.UserService;
+import cn.hotpot.rpc.common.service.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,10 +15,11 @@ import java.util.List;
  */
 @RestController
 public class UserController {
-//    @Autowired
-    private UserService userService;
+    @Autowired
+    private ApplicationContext applicationContext;
 
     public ResponseEntity<List<User>> list() {
+        UserService userService = (UserService) applicationContext.getBean("userService");
         return ResponseEntity.ok(userService.list());
     }
 }

@@ -1,10 +1,6 @@
 package cn.hotpot.rpc.client.config;
 
-import cn.hotpot.rpc.client.Constants;
 import cn.hotpot.rpc.common.annotation.RpcCaller;
-import cn.hotpot.rpc.common.netty.client.Client;
-import cn.hotpot.rpc.common.netty.model.Request;
-import cn.hotpot.rpc.common.netty.model.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
@@ -14,12 +10,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author qinzhu
@@ -43,8 +36,8 @@ public class RegisterRpcBeanConfig implements ApplicationContextAware, Initializ
                     Class<?> aClass = Class.forName(className);
                     Object proxyBean = Proxy.newProxyInstance(aClass.getClassLoader(),
                             new Class<?>[]{aClass},
-                            new CustomizeInvocationHandler());
-                    proxyBeans.put(aClass.getName(), proxyBean);
+                            ProxyFactory.createProxy(aClass));
+                    proxyBeans.put(produceBeanName(aClass), proxyBean);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
@@ -57,6 +50,17 @@ public class RegisterRpcBeanConfig implements ApplicationContextAware, Initializ
         registersAllRpcProxyBean(proxyBeans);
     }
 
+    /**
+     * 将cn.hotpot.rpc.client.config.UserService之类的字符串
+     * 转换为
+     * userService
+     */
+    private String produceBeanName(Class<?> aClass) {
+        String str = aClass.getSimpleName();
+        char c = str.charAt(0);
+        return (c + "").toLowerCase() + str.substring(1, str.length());
+    }
+
     private void registersAllRpcProxyBean(Map<String, Object> proxyBeans) {
         DefaultListableBeanFactory beanFactory = (DefaultListableBeanFactory) applicationContext.getAutowireCapableBeanFactory();
         proxyBeans.forEach(beanFactory::registerSingleton);
@@ -67,23 +71,4 @@ public class RegisterRpcBeanConfig implements ApplicationContextAware, Initializ
         this.applicationContext = applicationContext;
     }
 
-    private static class CustomizeInvocationHandler implements InvocationHandler {
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            log.info("proxy invoke");
-            Client client = new Client(Constants.HOST, Constants.PORT);
-            Request request = new Request()
-                    .setId(UUID.randomUUID().toString())
-                    .setClassName(method.getDeclaringClass().getName())
-                    .setMethodName(method.getName())
-                    .setParams(args)
-                    .setParamTypes(method.getParameterTypes());
-            Response response = client.send(request);
-            Throwable exp = response.getThrowable();
-            if (exp != null) {
-                throw exp;
-            }
-            return response.getResult();
-        }
-    }
 }

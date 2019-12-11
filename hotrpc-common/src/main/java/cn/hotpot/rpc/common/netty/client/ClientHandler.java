@@ -14,10 +14,10 @@ package cn.hotpot.rpc.common.netty.client;
  * @author qinzhu
  * @since 2019/12/10
  */
-public class Clienthandler extends ChannelDuplexHandler {
+public class ClientHandler extends ChannelDuplexHandler {
     private BlockingQueue<Response> queue;
 
-    public Clienthandler(BlockingQueue<Response> queue) {
+    public ClientHandler(BlockingQueue<Response> queue) {
         this.queue = queue;
     }
 

@@ -1,7 +1,7 @@
-package cn.hotpot.rpc.client.service;
+package cn.hotpot.rpc.common.service;
 
-import cn.hotpot.rpc.client.entity.User;
 import cn.hotpot.rpc.common.annotation.RpcCaller;
+import cn.hotpot.rpc.common.service.entity.User;
 
 import java.util.List;
 

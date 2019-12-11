@@ -11,5 +11,12 @@
 
     <artifactId>hotrpc-server</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>cn.hotpot</groupId>
+            <artifactId>hotrpc-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
 
 </project>

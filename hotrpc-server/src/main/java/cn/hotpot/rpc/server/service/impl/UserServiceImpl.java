@@ -1,4 +1,4 @@
-package cn.hotpot.rpc.server.serviceImpl;
+package cn.hotpot.rpc.server.service.impl;
 
 import cn.hotpot.rpc.common.annotation.RpcReplier;
 import cn.hotpot.rpc.common.service.UserService;

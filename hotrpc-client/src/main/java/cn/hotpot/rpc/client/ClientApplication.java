@@ -9,8 +9,8 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @since 2019/12/9
  */
 @SpringBootApplication
-public class Application {
+public class ClientApplication {
     public static void main(String[] args) {
-        ConfigurableApplicationContext context = SpringApplication.run(Application.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(ClientApplication.class, args);
     }
 }

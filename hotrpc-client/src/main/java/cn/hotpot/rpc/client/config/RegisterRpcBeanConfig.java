@@ -34,9 +34,7 @@ public class RegisterRpcBeanConfig implements ApplicationContextAware, Initializ
             if (metadataReader.getAnnotationMetadata().getAnnotationTypes().contains(RpcCaller.class.getName())) {
                 try {
                     Class<?> aClass = Class.forName(className);
-                    Object proxyBean = Proxy.newProxyInstance(aClass.getClassLoader(),
-                            new Class<?>[]{aClass},
-                            ProxyFactory.createProxy(aClass));
+                    Object proxyBean = ProxyFactory.createProxy(aClass);
                     proxyBeans.put(produceBeanName(aClass), proxyBean);
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();

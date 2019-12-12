@@ -18,7 +18,7 @@ import java.util.UUID;
 public class ProxyFactory {
     private static final String HOST = "127.0.0.1";
 
-    private static final Integer PORT = 8866;
+    private static final Integer PORT = 8864;
 
     @SuppressWarnings("unchecked")
     public static <T> T createProxy(Class<?> interfaceClass) {

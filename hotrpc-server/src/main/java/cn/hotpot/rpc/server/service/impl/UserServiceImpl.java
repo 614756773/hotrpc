@@ -13,7 +13,7 @@ import java.util.UUID;
  * @since 2019/12/11
  */
 @RpcReplier
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     @Override
     public void save(User user) {
         System.out.println("已存储");
@@ -24,5 +24,10 @@ public class UserServiceImpl implements UserService{
         return Collections.singletonList(new User().setSex("boy")
                 .setUserCode(UUID.randomUUID().toString())
                 .setUserName("Tom"));
+    }
+
+    @Override
+    public String getOne() {
+        return "TODO";
     }
 }

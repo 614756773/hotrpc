@@ -19,9 +19,10 @@ public class UserController {
     @Autowired
     private ApplicationContext applicationContext;
 
-    @GetMapping("/list")
-    public ResponseEntity<List<User>> list() {
+    @GetMapping("/one")
+    public ResponseEntity<String> getOne() {
+        // TODO 需要优化，将代理类存放在自己的容器中，而不是spring容器中
         UserService userService = (UserService) applicationContext.getBean("userService");
-        return ResponseEntity.ok(userService.list());
+        return ResponseEntity.ok(userService.getOne());
     }
 }

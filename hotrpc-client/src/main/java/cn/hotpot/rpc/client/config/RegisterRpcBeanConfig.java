@@ -10,7 +10,6 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.context.annotation.Configuration;
 
-import java.lang.reflect.Proxy;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,6 +33,7 @@ public class RegisterRpcBeanConfig implements ApplicationContextAware, Initializ
             if (metadataReader.getAnnotationMetadata().getAnnotationTypes().contains(RpcCaller.class.getName())) {
                 try {
                     Class<?> aClass = Class.forName(className);
+                    log.debug("创建代理");
                     Object proxyBean = ProxyFactory.createProxy(aClass);
                     proxyBeans.put(produceBeanName(aClass), proxyBean);
                 } catch (ClassNotFoundException e) {
@@ -43,7 +43,7 @@ public class RegisterRpcBeanConfig implements ApplicationContextAware, Initializ
             return true;
         });
         scanner.findCandidateComponents("cn.hotpot");
-        log.info("already scan RpcCaller");
+        log.debug("already scan RpcCaller");
 
         registersAllRpcProxyBean(proxyBeans);
     }

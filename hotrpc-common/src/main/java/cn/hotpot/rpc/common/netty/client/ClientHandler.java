@@ -1,19 +1,20 @@
 package cn.hotpot.rpc.common.netty.client;
 
-        import cn.hotpot.rpc.common.netty.model.Request;
-        import cn.hotpot.rpc.common.netty.model.Response;
-        import io.netty.channel.ChannelDuplexHandler;
-        import io.netty.channel.ChannelHandlerContext;
-        import io.netty.channel.ChannelPromise;
+import cn.hotpot.rpc.common.netty.model.Response;
+import com.alibaba.fastjson.JSONObject;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import lombok.extern.slf4j.Slf4j;
 
-        import java.lang.reflect.InvocationTargetException;
-        import java.lang.reflect.Method;
-        import java.util.concurrent.BlockingQueue;
+import java.lang.reflect.Method;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author qinzhu
  * @since 2019/12/10
  */
+@Slf4j
 public class ClientHandler extends ChannelDuplexHandler {
     private BlockingQueue<Response> queue;
 
@@ -28,34 +29,20 @@ public class ClientHandler extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if (!(msg instanceof Request)) {
+        log(msg);
+        if (!(msg instanceof Response)) {
             ctx.close();
             return;
         }
-        Request request = (Request) msg;
-        Class aClass = Class.forName(request.getClassName());
-        Object o = aClass.newInstance();
-        Method method = aClass.getMethod(request.getMethodName(), request.getParamTypes());
-        Response response = null;
+        Response response = (Response) msg;
+        queue.add(response);
+    }
+
+    private void log(Object msg) {
         try {
-            Object result = method.invoke(o, request.getParams());
-            response = produceResponse(result, request.getId());
+            log.debug("客户端收到返回的消息，{}", JSONObject.toJSON(msg));
         } catch (Exception e) {
-            response = produceResponseError(e, request.getId());
-        } finally {
-            queue.add(response);
+            e.printStackTrace();
         }
-    }
-
-    private Response produceResponseError(Throwable throwable, String id) {
-        return new Response()
-                .setId(id)
-                .setThrowable(throwable);
-    }
-
-    private Response produceResponse(Object result, String id) {
-        return new Response()
-                .setId(id)
-                .setResult(result);
     }
 }

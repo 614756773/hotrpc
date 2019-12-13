@@ -1,6 +1,7 @@
 logging:
   level:
     org.springframework: info
+    cn.hotpot: debug
 spring:
   output:
     ansi:

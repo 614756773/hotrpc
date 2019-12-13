@@ -16,6 +16,7 @@ import java.util.UUID;
  */
 @Slf4j
 public class ProxyFactory {
+
     private static final String HOST = "127.0.0.1";
 
     private static final Integer PORT = 8864;
@@ -30,15 +31,13 @@ public class ProxyFactory {
     private static class CustomizeInvocationHandler implements InvocationHandler {
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            log.info("proxy invoke");
-            Client client = new Client(HOST, PORT);
             Request request = new Request()
                     .setId(UUID.randomUUID().toString())
                     .setClassName(method.getDeclaringClass().getName())
                     .setMethodName(method.getName())
                     .setParams(args)
                     .setParamTypes(method.getParameterTypes());
-            Response response = client.send(request);
+            Response response = new Client(HOST, PORT).send(request);
             Throwable exp = response.getThrowable();
             if (exp != null) {
                 throw exp;

@@ -20,20 +20,21 @@ public class CommonInitializer extends ChannelInitializer<SocketChannel> {
      */
     private ChannelHandler channelHandler;
 
-    public CommonInitializer(ChannelHandler channelHandler) {
+    /**
+     * 需要解码成何种类型的对象
+     */
+    private Class<?> decodeClass;
+
+    public CommonInitializer(ChannelHandler channelHandler, Class<?> decodeClass) {
         this.channelHandler = channelHandler;
+        this.decodeClass = decodeClass;
     }
 
     @Override
     protected void initChannel(SocketChannel socketChannel) throws Exception {
 
         socketChannel.pipeline().addLast(
-                new LengthFieldBasedFrameDecoder(65536,
-                        0,
-                        4,
-                        4,
-                        0),
-                new Decoder(),
+                new Decoder(decodeClass),
                 new Encoder(),
                 this.channelHandler);
     }

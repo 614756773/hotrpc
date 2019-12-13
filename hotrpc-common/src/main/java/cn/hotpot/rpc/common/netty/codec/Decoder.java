@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -14,10 +15,18 @@ import java.util.List;
  * @author qinzhu
  * @since 2019/12/10
  */
+@Slf4j
 public class Decoder extends ByteToMessageDecoder {
+
+    private Class<?> targetClass;
+
+    public Decoder(Class<?> targetClass) {
+        this.targetClass = targetClass;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+        log.info("开始解码");
         if (byteBuf.readableBytes() < 8) {
             return;
         }
@@ -40,7 +49,14 @@ public class Decoder extends ByteToMessageDecoder {
 
         byte[] bytes = new byte[dateLength];
         byteBuf.readBytes(bytes);
-        Request request = JSONObject.parseObject(new String(bytes, StandardCharsets.UTF_8), Request.class);
-        list.add(request);
+        String text = new String(bytes, StandardCharsets.UTF_8);
+        log.debug(text);
+        if (targetClass != null) {
+            Object result = JSONObject.parseObject(text, targetClass);
+            list.add(result);
+        } else {
+            list.add(text);
+        }
+        log.info("解码完毕");
     }
 }

@@ -1,14 +1,18 @@
 package cn.hotpot.rpc.common.netty.server;
 
 import cn.hotpot.rpc.common.annotation.RpcReplier;
-import cn.hotpot.rpc.common.netty.common.CommonInitializer;
+import cn.hotpot.rpc.common.netty.codec.Decoder;
+import cn.hotpot.rpc.common.netty.codec.Encoder;
 import cn.hotpot.rpc.common.netty.model.Request;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 
@@ -21,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author qinzhu
  * @since 2019/12/12
  */
+@Slf4j
 public class Server {
 
     private static Map<String, Object> serviceMap = new ConcurrentHashMap<>();
@@ -29,8 +34,8 @@ public class Server {
 
     public static void start(Integer port) {
         checkServerStatus();
-        listen(port);
         registerService();// TODO 这儿有bug，没有把service放入map中
+        listen(port);
     }
 
     /**
@@ -57,7 +62,15 @@ public class Server {
         try {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new CommonInitializer(new ServerHandler(), Request.class))
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(
+                                    new Decoder(Request.class),
+                                    new Encoder(),
+                                    new ServerHandler());
+                        }
+                    })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture channelFuture = b.bind(port).sync();
             channelFuture.channel().closeFuture().sync();
@@ -74,23 +87,25 @@ public class Server {
      */
     private static void registerService() {
         ClassPathScanningCandidateComponentProvider componentProvider = new ClassPathScanningCandidateComponentProvider(false);
-        componentProvider.addIncludeFilter((metadataReader, metadataReaderFactory) ->
-                metadataReader.getAnnotationMetadata().getAnnotationTypes().contains(RpcReplier.class.getName()));
-        // TODO 需要优化
+        componentProvider.addIncludeFilter((metadataReader, metadataReaderFactory) -> {
+            log.debug(metadataReader.getClassMetadata().getClassName());
+            return metadataReader.getAnnotationMetadata().getAnnotationTypes().contains(RpcReplier.class.getName());
+        });
+
         Set<BeanDefinition> beanDefinitions = componentProvider.findCandidateComponents("cn.hotpot");
         beanDefinitions.forEach(beanDefinition -> {
             String className = beanDefinition.getBeanClassName();
             try {
                 Class<?> aClass = Class.forName(className);
                 Object service = aClass.newInstance();
-                Server.serviceMap.put(className, service);
+                Server.serviceMap.put(aClass.getInterfaces()[0].getName(), service);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
     }
 
-    public static Object getService(String className) {
+    static Object getService(String className) {
         return Server.serviceMap.get(className);
     }
 }

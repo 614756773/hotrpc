@@ -26,7 +26,7 @@ public class Decoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
-        log.info("开始解码");
+        log.debug("开始解码");
         if (byteBuf.readableBytes() < 8) {
             return;
         }
@@ -57,6 +57,6 @@ public class Decoder extends ByteToMessageDecoder {
         } else {
             list.add(text);
         }
-        log.info("解码完毕");
+        log.debug("解码完毕");
     }
 }

@@ -1,13 +1,11 @@
 package cn.hotpot.rpc.common.netty.server;
 
-import cn.hotpot.rpc.common.config.SpringApplicationContextHelper;
 import cn.hotpot.rpc.common.netty.model.Request;
 import cn.hotpot.rpc.common.netty.model.Response;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -40,7 +38,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.info("建立连接");
+        log.debug("建立连接");
         super.channelActive(ctx);
     }
 }

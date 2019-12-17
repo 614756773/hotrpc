@@ -1,19 +1,18 @@
 package cn.hotpot.rpc.common.netty.client;
 
-import cn.hotpot.rpc.common.netty.common.CommonInitializer;
-import cn.hotpot.rpc.common.netty.common.Constants;
+import cn.hotpot.rpc.common.netty.codec.Decoder;
+import cn.hotpot.rpc.common.netty.codec.Encoder;
 import cn.hotpot.rpc.common.netty.model.Request;
 import cn.hotpot.rpc.common.netty.model.Response;
-import com.alibaba.fastjson.JSON;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -59,10 +58,17 @@ public class Client {
             Bootstrap b = new Bootstrap();
             b.group(group)
                     .channel(NioSocketChannel.class)
-                    .handler(new CommonInitializer(new ClientHandler(queue), Response.class));
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(
+                                    new Decoder(Response.class),
+                                    new Encoder(),
+                                    new ClientHandler(queue));
+                        }
+                    });
             log.debug("客户端开始连接");
-            Channel channel = b.connect(host, port).sync().channel();
-            this.channel = channel;
+            this.channel = b.connect(host, port).sync().channel();
             log.debug("连接完毕");
         } catch (InterruptedException e) {
             e.printStackTrace();

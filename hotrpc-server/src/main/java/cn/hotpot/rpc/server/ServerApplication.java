@@ -1,6 +1,6 @@
 package cn.hotpot.rpc.server;
 
-import cn.hotpot.rpc.common.netty.server.Server;
+import cn.hotpot.rpc.common.netty.server.AdaptSpringServer;
 
 /**
  * @author qinzhu
@@ -8,6 +8,6 @@ import cn.hotpot.rpc.common.netty.server.Server;
  */
 public class ServerApplication {
     public static void main(String[] args) {
-        Server.start(8864);
+        new AdaptSpringServer().start(8864);
     }
 }
